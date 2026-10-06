@@ -1,0 +1,90 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build & Package Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # 安裝固定版本的 Gradle（不依賴 gradle-wrapper.jar，避免上傳時遺漏 jar 檔導致失敗）
+      - name: Set up Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+          cache-read-only: false
+
+      - name: Accept Android SDK Licenses
+        run: |
+          if [ -n "$ANDROID_HOME" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          fi
+
+      # 找出 Android 專案根目錄（含 settings.gradle 的資料夾）
+      - name: Locate Android project directory
+        id: locate
+        run: |
+          SETTINGS_FILE=$(find . -name "settings.gradle" -not -path "*/node_modules/*" -not -path "*/capacitor-android/*" | head -n 1)
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "錯誤：找不到 settings.gradle，請確認專案已完整上傳"
+            exit 1
+          fi
+          DIR=$(dirname "$SETTINGS_FILE")
+          echo "Android 專案目錄：$DIR"
+          echo "dir=$DIR" >> $GITHUB_OUTPUT
+
+      # 檢查必要檔案是否都有上傳，缺檔時給出明確訊息
+      - name: Verify required files
+        run: |
+          cd "${{ steps.locate.outputs.dir }}"
+          MISSING=0
+          for f in \
+            app/src/main/assets/public/index.html \
+            app/src/main/assets/public/tp-native.js \
+            app/src/main/assets/capacitor.config.json \
+            app/src/main/assets/capacitor.plugins.json \
+            capacitor-cordova-android-plugins/build.gradle \
+            capacitor-android/build.gradle \
+            app/src/main/java/com/toeicpulse/app/TPNotifyPlugin.java; do
+            if [ ! -f "$f" ]; then echo "缺少檔案：$f"; MISSING=1; fi
+          done
+          ls app/src/main/assets/public/assets/*.js > /dev/null 2>&1 || { echo "缺少檔案：app/src/main/assets/public/assets/*.js"; MISSING=1; }
+          if [ "$MISSING" = "1" ]; then
+            echo "請確認上述檔案已上傳到 GitHub（舊版 .gitignore 會排除它們）"
+            exit 1
+          fi
+          echo "必要檔案檢查通過"
+
+      - name: Build Debug APK
+        run: |
+          cd "${{ steps.locate.outputs.dir }}"
+          # 依賴伺服器偶爾回 429 (Too Many Requests)，失敗時等待後自動重試，最多 3 次
+          for i in 1 2 3; do
+            if gradle assembleDebug --no-daemon --stacktrace; then exit 0; fi
+            echo "第 $i 次建置失敗，60 秒後重試..."
+            sleep 60
+          done
+          exit 1
+
+      - name: Upload Debug APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: toeic-pulse-debug-apk
+          path: '**/app/build/outputs/apk/debug/*.apk'
+          if-no-files-found: error
+          retention-days: 30

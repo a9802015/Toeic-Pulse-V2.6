@@ -1,0 +1,11 @@
+{
+	"appId": "com.toeicpulse.app",
+	"appName": "TOEIC Pulse",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https"
+	},
+	"android": {
+		"allowMixedContent": true
+	}
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TOEIC Pulse</string>
+    <string name="title_activity_main">TOEIC Pulse</string>
+    <string name="package_name">com.toeicpulse.app</string>
+    <string name="custom_url_scheme">com.toeicpulse.app</string>
+</resources>

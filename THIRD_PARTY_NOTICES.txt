@@ -1,0 +1,13 @@
+TOEIC Pulse - third-party data
+
+Word list, phonetics and Chinese meanings:
+  ECDICT (https://github.com/skywind3000/ECDICT) - MIT License, Copyright (c) Linwei
+  Converted to Traditional Chinese with OpenCC.
+
+Synonyms / antonyms:
+  WordNet 3.0 (Princeton University, WordNet License) and Open Multilingual Wordnet (Chinese glosses)
+
+Example sentences (part; the rest written for this app):
+  Tatoeba (https://tatoeba.org) - CC BY 2.0 FR
+  Sentence pairs via https://github.com/leonsilicon/tatoeba-sentence-pairs-in-mandarin-chinese-english
+  Chinese translations converted to Traditional Chinese with OpenCC.

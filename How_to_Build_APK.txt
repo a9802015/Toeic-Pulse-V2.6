@@ -1,0 +1,23 @@
+==================================================
+ TOEIC Pulse - Android APK 原生專案打包指南
+==================================================
+
+【方式一：使用 GitHub Actions 線上免費一鍵生成 APK（推薦！免裝任何軟體）】
+本專案已為您內建好 GitHub CI/CD 自動編譯設定（.github/workflows/build-apk.yml）：
+1. 在 GitHub 上建立一個新的儲存庫（Repository，公開或私有皆可）。
+2. 將解壓縮出的專案資料夾內容上傳（push）到該 GitHub 儲存庫。
+3. 點選 GitHub 網頁上方的「Actions」標籤頁。
+4. 在左側選單選擇「Build Android APK」，點擊右側的「Run workflow」按鈕。
+5. GitHub 雲端環境將在 1~2 分鐘內自動完成 Gradle 編譯。
+6. 完成後進入該次 Workflow 紀錄，在「Artifacts」區塊即可一鍵下載「toeic-pulse-debug-apk」檔案，裡面就是可在手機上安裝的 app-debug.apk！
+
+【方式二：使用 Android Studio 本機打包】
+1. 開啟 Android Studio，點選「Open」載入本資料夾。
+2. 等待 Gradle 自動同步完成。
+3. 點選頂部功能表：Build -> Build Bundle(s) / APK(s) -> Build APK(s)。
+4. 完成後點擊右下角「locate」取得 app-debug.apk。
+
+【方式三：命令列終端機編譯】
+- Windows: gradlew.bat assembleDebug
+- Mac / Linux: ./gradlew assembleDebug
+產出檔案位於：app/build/outputs/apk/debug/app-debug.apk
